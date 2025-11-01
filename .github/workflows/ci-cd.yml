@@ -1,8 +1,8 @@
-name: CI/CD – Build, Push & Rollout (Docker Hub + SSH)
+name: CD Pipeline
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
   workflow_dispatch:
 
 env:
@@ -36,7 +36,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_TOKEN}}
 
       # ---------- FRONTEND ----------
       - name: Build & Push Frontend
@@ -45,7 +45,7 @@ jobs:
           context: ./client
           file: ./client/Dockerfile
           push: true
-          tags: docker.io/pedrobrantis/frontend:latest,docker.io/pedrobrantis/frontend:${{ github.sha }}
+          tags: docker.io/darioalef/frontend:v1.1,docker.io/darioalef/frontend:${{ github.sha }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
@@ -75,7 +75,7 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}  # ex.: ubuntu
+          username: UBUNTU  # ex.: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script_stop: true
